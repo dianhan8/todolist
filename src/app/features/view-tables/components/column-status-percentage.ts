@@ -25,7 +25,7 @@ import { TableColumn, TableColumnSelect,TableModel } from "@app/core/models/tabl
         }
 
         .status-percentage--item {
-            height: 24px;
+            height: 32px;
         }
     `]
 })

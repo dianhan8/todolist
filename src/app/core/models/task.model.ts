@@ -1,7 +1,8 @@
+import { nanoid } from "nanoid";
 import { TaskDto, TaskResponseDto } from "../dtos/task.dto";
 
 export class TaskModel {
-    id: number;
+    id: string;
     task: string;
     developer: string[];
     status: string;
@@ -12,7 +13,7 @@ export class TaskModel {
     actualSp: number;
 
     constructor(
-        id: number,
+        id: string,
         task: string,
         developer: string[],
         status: string,
@@ -36,7 +37,7 @@ export class TaskModel {
     static fromJson(dto: TaskDto): TaskModel {
         const developers = dto.developer ? dto.developer.split(',').map(dev => dev.trim()) : [];
         return new TaskModel(
-            0, // Assuming ID is generated later
+            nanoid(6), // Assuming ID is generated later
             dto.title,
             developers,
             dto.status,

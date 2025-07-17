@@ -5,6 +5,7 @@ import { NzPopoverModule } from "ng-zorro-antd/popover";
 import { TableColumn, TableColumnPerson } from "@app/core/models/table.model";
 import { FormsModule } from "@angular/forms";
 import { NzSelectModule } from "ng-zorro-antd/select";
+import { NzToolTipModule } from "ng-zorro-antd/tooltip";
 
 @Component({
     selector: 'column-person',
@@ -19,7 +20,7 @@ import { NzSelectModule } from "ng-zorro-antd/select";
             
             <nz-avatar-group>
                 @for (developer of data; track $index) {
-                    <nz-avatar [nzText]="developer.at(0)"></nz-avatar>
+                    <nz-avatar [nzText]="developer.at(0)"  nz-tooltip [nzTooltipTitle]="developer"></nz-avatar>
                 }
             </nz-avatar-group>
         </div>
@@ -44,7 +45,7 @@ import { NzSelectModule } from "ng-zorro-antd/select";
             </div>
         </ng-template>
     `,
-    imports: [CommonModule, NzAvatarModule, NzPopoverModule, NzSelectModule, FormsModule]
+    imports: [CommonModule, NzAvatarModule, NzPopoverModule, NzSelectModule, FormsModule, NzToolTipModule]
 })
 export class ColumnPersonComponent {
     @Input('row') item: any;

@@ -1,0 +1,75 @@
+<div class="kanban">
+    @for (item of options; track $index) {
+    <div
+        class="kanban-item"
+        [style.background]="item.bgColorLight"
+        *ngIf="item.label | async as label"
+        [dndDropzone]="[label]"
+        dndEffectAllowed="move"
+        (dndDrop)="onDrop($event, label)"
+    >
+        <div nz-flex [nzGap]="8" class="kanban-item--header">
+            <p
+                class="options--item--tag"
+                [style.background]="item.backgroundColor | async"
+                [style.color]="item.color | async">
+                {{ item.label | async}}
+            </p>
+
+            <p>{{ getTotalCount(label) }}</p>
+        </div>
+
+        <div
+            class="kanban-item--content"
+        >
+            @for (task of table.data; track $index) {
+                @if (task[column.field] === (item.label | async)) {
+                    <div
+                        class="kanban-item--task"
+                        [dndDraggable]="task"
+                        dndEffectAllowed="move"
+                    >
+                        @for (item of table.columns; track $index) {
+                            @switch (item.type) {
+                                @case ('text') {
+                                    <p class="kanban-item--task--text">{{ task[item.field] }}</p>
+                                }
+                                @case ('select') {
+                                    <div>
+                                        <kanban-column-select
+                                            [row]="task"
+                                            [column]="item"
+                                        ></kanban-column-select>
+                                    </div>
+                                }
+                                @case ('person') {
+                                    <div class="kanban-item--task--person">
+                                        <nz-avatar-group>
+                                            @for (developer of task[item.field]; track $index) {
+                                                <nz-avatar [nzText]="developer.at(0)" nz-tooltip [nzTooltipTitle]="developer"></nz-avatar>
+                                            }
+                                        </nz-avatar-group>
+                                    </div>
+                                }
+                                @case ('date') {
+                                    <kanban-column-date
+                                        [row]="task"
+                                        [column]="item"
+                                    ></kanban-column-date>
+                                
+                                }
+                                @case ('number') {
+                                    <kanban-column-number
+                                        [row]="task"
+                                        [column]="item"
+                                    ></kanban-column-number>
+                                }
+                            }
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+    }
+</div>

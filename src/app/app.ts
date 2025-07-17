@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ViewTableComponent } from './features/view-tables/view-tables.component';
-import { SelectOption, TableColumn, TableColumnPerson, TableColumnSelect, TableColumnType, TableModel } from './core/models/table.model';
+import { SelectOption, TableColumn, TableColumnDate, TableColumnNumber, TableColumnPerson, TableColumnSelect, TableColumnType, TableModel } from './core/models/table.model';
 import { Colors } from './core/constants/colors';
 import { BaseComponent } from './core/base/base-component';
 import { TaskUseCases } from './core/usecases/task.usecases';
@@ -14,31 +14,43 @@ import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { FormsModule } from '@angular/forms';
 import { NzSelectModule } from 'ng-zorro-antd/select';
-import { BehaviorSubject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { BehaviorSubject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { ViewKanbanComponent } from './features/view-kanban/view-kanban.component';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { AddTaskComponent } from './features/add-task/add-task.component';
+import { StatusPercentageComponent } from './features/view-tables/components/column-status-percentage';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.less',
-  imports: [CommonModule, ViewTableComponent, FormsModule, NzInputModule, NzDropDownModule, NzPopoverModule, NzSelectModule, NzIconModule, NzFlexModule, NzButtonModule],
+  imports: [CommonModule, ViewTableComponent, ViewKanbanComponent, StatusPercentageComponent, FormsModule, NzTabsModule, NzInputModule, NzDropDownModule, NzPopoverModule, NzSelectModule, NzIconModule, NzFlexModule, NzButtonModule],
+  providers: [NzModalService]
 })
 export class App extends BaseComponent {
   private taskUsecase: TaskUseCases = inject(TaskUseCases);
+  private modalService = inject(NzModalService);
 
   view = ViewType.Table;
   table = new TableModel<unknown>();
+
+  showAddSort = false
+  showSort = false;
+  showAddFilter = false;
+  showFilter: Record<number, boolean> = {}
 
   showSearch = false;
   searchValue = new BehaviorSubject<string>('');
 
   readonly statusOptions: SelectOption[] = [
-    new SelectOption('In Progress', '#5d1715', Colors.colors[0].value),
     new SelectOption('Ready to start', '#004085', Colors.colors[1].value),
+    new SelectOption('In Progress', '#5d1715', Colors.colors[0].value),
     new SelectOption('Waiting for review', '#0f5132', Colors.colors[2].value),
-    new SelectOption('Done', '#664d03', Colors.colors[3].value),
     new SelectOption('Stuck', '#4f1552', Colors.colors[4].value),
-    new SelectOption('Pending Deploy', '#7a2e0b', Colors.colors[5].value)
+    new SelectOption('Pending Deploy', '#7a2e0b', Colors.colors[5].value),
+    new SelectOption('Done', '#664d03', Colors.colors[3].value)
   ]
 
   readonly typeOptions: SelectOption[] = [
@@ -48,10 +60,10 @@ export class App extends BaseComponent {
   ]
 
   readonly priorityOptions: SelectOption[] = [
-    new SelectOption('Critical', '#5d1715', Colors.colors[0].value),
-    new SelectOption('High', '#004085', Colors.colors[1].value),
-    new SelectOption('Medium', '#0f5132', Colors.colors[2].value),
     new SelectOption('Low', '#0f5132', Colors.colors[4].value),
+    new SelectOption('Medium', '#0f5132', Colors.colors[2].value),
+    new SelectOption('High', '#004085', Colors.colors[1].value),
+    new SelectOption('Critical', '#5d1715', Colors.colors[0].value),
     new SelectOption('Best Effort', '#664d03', Colors.colors[5].value),
   ]
 
@@ -68,9 +80,9 @@ export class App extends BaseComponent {
       new TableColumnSelect('Status', 'status', this.statusOptions, true),
       new TableColumnSelect('Priority', 'priority', this.priorityOptions, true),
       new TableColumnSelect('Type', 'type', this.typeOptions, true),
-      new TableColumn('Created At', 'createdAt', TableColumnType.Date, true),
-      new TableColumn('Estimated SP', 'estimatedSp', TableColumnType.Number, true),
-      new TableColumn('Actual SP', 'actualSp', TableColumnType.Number, true),
+      new TableColumnDate('Created At', 'createdAt', true, 'dd MMM yyyy'),
+      new TableColumnNumber('Estimated SP', 'estimatedSp', true, 'SP'),
+      new TableColumnNumber('Actual SP', 'actualSp', true, 'SP'),
     ])
 
     this.getTasks();
@@ -84,32 +96,31 @@ export class App extends BaseComponent {
   }
 
   getTasks(): void {
-    this.setLoading(true);
-    this.taskUsecase.getTasks().subscribe({
-      next: (tasks) => {
-        this.table.setData(tasks);
-        this.setReady();
-      },
-      error: (error) => {
-        console.error('Error fetching tasks:', error);
-      }
-    });
+    this.setLoading();
+    this.taskUsecase.getTasks()
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe({
+        next: (tasks) => {
+          this.table.setData(tasks);
+          this.setReady();
+        },
+        error: (error) => {
+          console.error('Error fetching tasks:', error);
+        }
+      });
   }
 
 
   addTask(): void {
-    const newTask = {
-      task: 'New Task',
-      developer: [],
-      status: '',
-      priority: '',
-      type: 'Feature Enhancements',
-      createdAt: new Date(),
-      estimatedSp: 0,
-      actualSp: 0
-    };
-
-    this.table.addData(newTask);
+    this.modalService.create({
+      nzTitle: 'Add Task',
+      nzContent: AddTaskComponent,
+      nzFooter: null,
+      nzWidth: '600px',
+      nzData: {
+        table: this.table
+      },
+    })
   }
 
   toggleSearch(): void {
@@ -122,5 +133,15 @@ export class App extends BaseComponent {
   search(value: Event): void {
     const input = value.target as HTMLInputElement;
     this.searchValue.next(input.value);
+  }
+
+  onAddSort(): void {
+    this.showAddSort = false;
+    this.showSort = true;
+  }
+
+  onAddFilter(index: number): void {
+    this.showAddFilter = false;
+    this.showFilter[index] = true;
   }
 }

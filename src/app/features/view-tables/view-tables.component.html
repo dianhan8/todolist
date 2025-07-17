@@ -13,33 +13,33 @@
         @for (item of table.data; track $index) {
         <tr>
             @for (col of table.columns; track $index) {
-            @switch (col.type) {
-            @case ('text') {
-            <td>
-                <column-text [row]="item" [field]="col.field"></column-text>
-            </td>
-            }
-            @case ('number') {
-            <td>
-                <column-number [row]="item" [field]="col.field"></column-number>
-            </td>
-            }
-            @case ('person') {
-            <td>
-                <column-person [row]="item" [col]="col"></column-person>
-            </td>
-            }
-            @case ('select') {
-            <td>
-                <column-select [row]="item" [column]="col"></column-select>
-            </td>
-            }
-            @case ('date') {
-            <td>
-                <column-date [row]="item" [field]="col.field"></column-date>
-            </td>
-            }
-            }
+                @switch (col.type) {
+                    @case ('text') {
+                    <td>
+                        <column-text [row]="item" [field]="col.field"></column-text>
+                    </td>
+                    }
+                    @case ('number') {
+                    <td>
+                        <column-number [row]="item" [col]="col"></column-number>
+                    </td>
+                    }
+                    @case ('person') {
+                    <td>
+                        <column-person [row]="item" [col]="col"></column-person>
+                    </td>
+                    }
+                    @case ('select') {
+                    <td>
+                        <column-select [row]="item" [column]="col"></column-select>
+                    </td>
+                    }
+                    @case ('date') {
+                    <td>
+                        <column-date [row]="item" [col]="col"></column-date>
+                    </td>
+                    }
+                }
             }
         </tr>
         }
@@ -60,45 +60,3 @@
         </tr>
     </tbody>
 </nz-table>
-
-<!-- <nz-dropdown-menu #cellmenu="nzDropdownMenu">
-    <ul nz-menu>
-        <li nzTitle="Options" nz-submenu nz-popover nzPopoverTrigger="click" [nzPopoverContent]="popoverContent"
-            nzPopoverPlacement="rightTop"></li>
-    </ul>
-</nz-dropdown-menu>
-
-<ng-template #popoverContent>
-    @for (item of statusOptionsColors; track $index) {
-    <div class="options popover-content">
-        <div class="options--item" nz-popover [nzPopoverContent]="editproperty" nzPopoverTrigger="click"
-            nzPopoverPlacement="rightTop">
-            <div class="options--item--label">
-                <p class="options--item--tag" [style.background]="item.backgroundColor | async"
-                    [style.color]="item.color | async">
-                    {{ item.label | async }}
-                </p>
-            </div>
-
-            <nz-icon nzType="right" nzTheme="outline" style="width: 10px;height: 10px;color: rgba(0, 0, 0, 0.45)" />
-        </div>
-    </div>
-    }
-</ng-template>
-
-<ng-template #editproperty>
-    <div class="popover-content">
-        <p class="popover-content--label">Colors</p>
-
-        <div class="colors">
-            @for (color of colors; track $index) {
-            <div class="colors--item">
-                <div class="colors--item--color" [style.background]="color.value"></div>
-                <div class="colors--item--label">
-                    <span>{{color.label}}</span>
-                </div>
-            </div>
-            }
-        </div>
-    </div>
-</ng-template> -->

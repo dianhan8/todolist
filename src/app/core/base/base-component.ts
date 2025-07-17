@@ -16,8 +16,8 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
         this.onInit();
     }
 
-    setLoading(loading: boolean): void {
-        this.isLoading = loading;
+    setLoading(): void {
+        this.isLoading = true;
     }
 
     setReady(): void {

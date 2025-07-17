@@ -124,3 +124,46 @@ p {
 .view-container {
     padding: 12px
 }
+
+.kanban {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    overflow-x: auto;
+}
+
+.kanban-item {
+    min-width: 230px;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.kanban-item--content {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.kanban-item--task {
+    background-color: white;
+    padding: 8px 8px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px
+}
+
+.ant-form-item {
+    margin-bottom: 4px;
+}
+
+.ant-tabs-tab {
+    padding: 8px 16px;
+}
+
+.kanban-toolbar--status {
+    width: 260px;
+}

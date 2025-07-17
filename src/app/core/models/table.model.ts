@@ -179,8 +179,20 @@ export class TableModel<T> {
     }
 
     setData(data: T[]) {
-        this.data = data;
         this._data = data;
+        
+        if (data.length > 0 && 'createdAt' in (<any>data)[0]) {
+            this.tableSort.setSort([new TableColumnSort('createdAt', 'desc')]);
+        }
+        
+        this.data = this.tableSort.applySorting(this._data, this.columns);
+        this.data = this.tableFilter.applyFilter(this.data, this.columns);
+    }
+
+    updateData(data: T[]) {
+        this._data = data;
+        this.data = this.tableSort.applySorting(this._data, this.columns);
+        this.data = this.tableFilter.applyFilter(this._data, this.columns);
     }
 
     addData(data: T) {
@@ -264,5 +276,26 @@ export class TableColumnPerson extends TableColumn {
     constructor(title: string, field: string, options: string[], enabled: boolean = true) {
         super(title, field, TableColumnType.Person, enabled);
         this.options = options;
+    }
+}
+
+export class TableColumnDate extends TableColumn {
+    format: string;
+
+    constructor(title: string, field: string, enabled: boolean = true, format?: string) {
+        super(title, field, TableColumnType.Date, enabled);
+        this.format = format || 'dd/MMM/yyyy'; // Default format
+    }
+}
+
+export class TableColumnNumber extends TableColumn {
+    suffix: string;
+
+    constructor(title: string, field: string, enabled: boolean = true, suffix?: string) {
+        super(title, field, TableColumnType.Number, enabled);
+
+        if (suffix) {
+            this.suffix = suffix;
+        }
     }
 }

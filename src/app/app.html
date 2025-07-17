@@ -1,3 +1,8 @@
+<nz-tabs [(nzSelectedIndex)]="view">
+    <nz-tab nzTitle="Main Table"></nz-tab>
+    <nz-tab nzTitle="Kanban View"></nz-tab>
+</nz-tabs>
+
 <div class="toolbar">
     <div class="toolbar--item">
         <button nz-button nzType="primary" (click)="addTask()">
@@ -19,16 +24,29 @@
     </div>
 
     <div class="toolbar--item">
-        <button nz-button nzType="primary" nz-popover [nzPopoverContent]="addsort" nzPopoverPlacement="bottomLeft">
+        <button
+            nz-button
+            nzType="primary"
+            nz-popover
+            [nzPopoverContent]="addsort"
+            nzPopoverPlacement="bottomLeft"
+            [nzPopoverTrigger]="'click'"
+            [(nzPopoverVisible)]="showAddSort">
             Sort
             <nz-icon nzType="sort-ascending" nzTheme="outline" />
         </button>
     </div>
+
+    @if (view === 1) {
+        <div class="kanban-toolbar--status">
+            <status-percentage [column]="table.getColumn('status')" [table]="table"></status-percentage >
+        </div>
+    }
 </div>
 
 <div class="toolbar-sort">
     <div nz-flex [nzGap]="8">
-        <button nz-button nzType="primary" nz-popover nzPopoverPlacement="bottomLeft" [nzPopoverContent]="sort"
+        <button nz-button nzType="primary" nz-popover nzPopoverPlacement="bottomLeft" [nzPopoverContent]="sort" [(nzPopoverVisible)]="showSort"
             nzPopoverTrigger="click" [hidden]="!(table.tableSort.sort | async)?.length">
             <nz-icon nzType="sort-ascending" nzTheme="outline" />
             {{ (table.tableSort.sort | async)?.length || 0 }} Sorts
@@ -38,10 +56,10 @@
         <div nz-flex [nzGap]="8">
             <div nz-flex>
                 @for (item of table.tableFilter.filter | async; track $index) {
-                <button nz-button nzType="primary" nz-popover [nzPopoverContent]="filter" nzPopoverTrigger="click"
+                <button nz-button nzType="primary" nz-popover [nzPopoverContent]="filter" nzPopoverTrigger="click" [(nzPopoverVisible)]="showFilter[$index]"
                     nzPopoverPlacement="bottomLeft">
                     <nz-icon nzType="filter" nzTheme="outline"></nz-icon>
-                    {{ item.field }}: {{ item.value }}
+                    <span style="text-transform: capitalize;">{{ item.field }}</span>: {{ item.value }}
                 </button>
 
                 <ng-template #filter>
@@ -67,7 +85,7 @@
                 }
             </div>
 
-            <button nz-button nzType="text" nz-popover nzPopoverPlacement="bottomLeft" [nzPopoverContent]="addfilter"
+            <button nz-button nzType="text" nz-popover nzPopoverPlacement="bottomLeft" [nzPopoverContent]="addfilter" [(nzPopoverVisible)]="showAddFilter"
                 nzPopoverTrigger="click" [hidden]="!table.filterableColumns?.length">
                 <nz-icon nzType="plus" nzTheme="outline"></nz-icon>
                 Add Filter
@@ -79,7 +97,7 @@
         <div class="popover-content" style="padding: 8px;">
             <nz-flex [nzVertical]="true" [nzGap]="8">
                 @for (filter of table.filterableColumns; track $index) {
-                <button nz-button nzType="text" (click)="table.tableFilter.addFilter(filter.field, '')"
+                <button nz-button nzType="text" (click)="table.tableFilter.addFilter(filter.field, '');onAddFilter($index)"
                     style="text-align: left;">
                     {{ filter.title }}
                 </button>
@@ -105,7 +123,7 @@
                     <nz-option nzValue="desc" nzLabel="Descending"></nz-option>
                 </nz-select>
 
-                <button nz-button nzType="text" style="margin-left: 12px;" (click)="table.tableSort">
+                <button nz-button nzType="text" style="margin-left: 12px;" (click)="table.tableSort.removeSort(sort.field)">
                     <nz-icon nzType="close" nzTheme="outline"></nz-icon>
                 </button>
             </div>
@@ -113,7 +131,7 @@
 
             <div nz-flex [nzVertical]="true" nzAlign="flex-start" [nzGap]="8">
                 <button nz-button nz-popover [nzPopoverContent]="addsort" nzPopoverTrigger="click"
-                    nzPopoverPlacement="bottomLeft" [hidden]="!table.sortableColumns?.length">
+                    nzPopoverPlacement="bottomLeft" nzType="text" [hidden]="!table.sortableColumns?.length">
                     <nz-icon nzType="plus" nzTheme="outline"></nz-icon>
                     Add sort
                 </button>
@@ -133,7 +151,7 @@
             <div class="add-sort">
                 <div nz-flex [nzVertical]="true" nzAlign="flex-start" [nzGap]="8">
                     @for (column of table.sortableColumns; track $index) {
-                    <button nz-button nzType="text" (click)="table.tableSort.addSort(column.field, 'asc')"
+                    <button nz-button nzType="text" (click)="table.tableSort.addSort(column.field, 'asc');onAddSort()"
                         style="width: 100%;text-align: left;">
                         {{ column.title }}
                     </button>
@@ -147,8 +165,11 @@
 
 <div class="view-container">
     @switch (view) {
-        @case ('table') {
+        @case (0) {
             <view-tables [table]="table"></view-tables>
+        }
+        @case (1) {
+            <view-kanban [table]="table" [column]="table.columns[2]"></view-kanban>
         }
         @default {
             <p>Unsupported view type</p>
