@@ -1,5 +1,43 @@
 # TaskManagement
 
+# Project Structure
+
+```
+task-management/
+├── src/
+│   ├── app/
+│   │   ├── core/                # Shared services, models, constants
+│   │   │   ├── base/
+│   │   │   ├── constants/
+│   │   │   ├── dtos/
+│   │   │   ├── models/
+│   │   │   ├── services/
+│   │   │   └── usecases/
+│   │   ├── features/            # Feature components
+│   │   │   ├── add-task/
+│   │   │   ├── view-kanban/
+│   │   │   └── view-tables/
+│   │   └── app.* files          # App configuration
+│   ├── index.html
+│   ├── main.ts
+│   └── styles.less
+├── public/
+├── angular.json
+├── package.json
+└── README.md
+```
+
+# Dependencies
+
+This project uses the following key dependencies (excluding Angular packages):
+
+## Production Dependencies
+- **[ng-zorro-antd](https://ng.ant.design/)** - Ant Design components for Angular
+- **[ngx-drag-drop](https://www.npmjs.com/package/ngx-drag-drop)** - Drag and drop functionality
+- **[chroma-js](https://gka.github.io/chroma.js/)** - Color manipulation library
+- **[nanoid](https://github.com/ai/nanoid)** - Unique ID generator
+- **[less](https://lesscss.org/)** - CSS preprocessor
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.2.
 
 ## Development server
